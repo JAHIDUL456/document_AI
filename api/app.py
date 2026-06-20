@@ -49,3 +49,26 @@ def chunks():
         "total_chunks": len(final_chunks),
         "sample": final_chunks[:5]
     }
+
+
+@app.post("/ingest")
+def ingest():
+    try:
+        from embeddings.embedder import embed_batch
+        from vectordb.qdrant_store import init_collection, upsert_chunks
+        pages = extract_pdf(pdf_path)
+        cleaned = clean_documents(pages)
+        final_chunks = build_chunks(cleaned)
+        texts_to_embed = [c["text"] for c in final_chunks]
+        embeddings = embed_batch(texts_to_embed)
+        init_collection(recreate=True)
+        upsert_chunks(final_chunks, embeddings)
+        return {
+            "status": "success",
+            "message": f"Successfully ingested {len(final_chunks)} chunks into Qdrant collection '{COLLECTION_NAME}'."
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }

@@ -4,7 +4,7 @@ uvicorn
 pymupdf
 
 sentence-transformers
-
+torch
 qdrant-client
 
 python-dotenv
