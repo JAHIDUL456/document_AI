@@ -28,7 +28,23 @@ def preserve_bullets(text: str) -> str:
     return text
 
 
+def is_raw_marker(line: str) -> bool:
+    line = line.strip()
+    return bool(
+        re.match(r"^\d+\.$", line) or
+        re.match(r"^[A-Z]\.$", line) or
+        re.match(r"^[a-z]\)$", line) or
+        re.match(r"^\(?i+\)?\.$", line)
+    )
+
+
+def is_header(line: str) -> bool:
+    line = line.strip()
+    return bool(re.match(r"^\d+\.\s+\S+", line) or re.match(r"^[A-Z]\.\s+\S+", line))
+
+
 def smart_line_merge(text: str) -> str:
+    text = text.replace("\u200b", "").replace("\u00a0", " ")
     lines = text.split("\n")
     merged = []
 
@@ -41,7 +57,11 @@ def smart_line_merge(text: str) -> str:
             merged.append(line)
             continue
 
-        if merged and not merged[-1].endswith((".", ":", ";")):
+        if merged and is_header(merged[-1]):
+            merged.append(line)
+            continue
+
+        if merged and (is_raw_marker(merged[-1]) or not merged[-1].endswith((".", ":", ";"))):
             merged[-1] += " " + line
         else:
             merged.append(line)
