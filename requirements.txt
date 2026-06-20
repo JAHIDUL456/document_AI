@@ -6,7 +6,7 @@ pymupdf
 sentence-transformers
 torch
 qdrant-client
-
+groq
 python-dotenv
 
 requests
