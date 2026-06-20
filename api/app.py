@@ -89,3 +89,37 @@ def retrieve(query: str, k: int = TOP_K):
             "status": "error",
             "message": str(e)
         }
+
+
+@app.get("/query")
+def query_endpoint(query: str, k: int = TOP_K):
+    try:
+        from retriever.retriever import retrieve_hybrid
+        from llm.generator import generate_answer
+        
+        # Retrieve candidate chunks (defaults to TOP_K which is 2)
+        results = retrieve_hybrid(query, k=k)
+        
+        # Generate the answer using LLM
+        answer = generate_answer(query, results)
+        
+        # Map sources to show where information was found
+        sources = [
+            {
+                "pages": res.get("pages", []),
+                "score": res.get("rrf_score", res.get("score", 0.0))
+            }
+            for res in results
+        ]
+        
+        return {
+            "status": "success",
+            "query": query,
+            "answer": answer,
+            "sources": sources
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
