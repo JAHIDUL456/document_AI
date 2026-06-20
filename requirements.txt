@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+
+pymupdf
+
+sentence-transformers
+
+qdrant-client
+
+python-dotenv
+
+requests
+
+numpy
