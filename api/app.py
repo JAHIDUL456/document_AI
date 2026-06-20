@@ -72,3 +72,20 @@ def ingest():
             "status": "error",
             "message": str(e)
         }
+
+
+@app.get("/retrieve")
+def retrieve(query: str, k: int = TOP_K):
+    try:
+        from retriever.retriever import retrieve_hybrid
+        results = retrieve_hybrid(query, k=k)
+        return {
+            "status": "success",
+            "query": query,
+            "results": results
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
